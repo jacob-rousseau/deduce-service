@@ -153,4 +153,19 @@ class TestDeduceService:
         assert data["patient_surname_capitals"] == "RABBIT,P."
         assert data["patient_surname_2"] == "Rabbit-Konijn"
         assert data["text"] == "Peter was not very well during the evening. His mother put him to bed, and made " \
-                                "some chamomile tea: One table-spoonful to be taken at bedtime"
+                               "some chamomile tea: One table-spoonful to be taken at bedtime"
+
+    def test_deindentification_extra_fields(self, client):
+        to_test = "HASH_B\tNOTE_ID_0002\tNOTE_CAT_LETTER\tPeter\tP\tRabbit\tRABBIT,P.\tRabbit-Konijn\t" \
+                  "The patient P. Rabbit (first name Peter) was admitted to our hospital " \
+                  "on 14-02-2023 with symptoms of chamomile tea poisoning. His mother " \
+                  "Mrs. Rabbit-Konijn, admitted administrating too much tea. " \
+                  "Patient name: RABBIT,P."
+        expected = "[PATIENT] (first name [PATIENT]) was admitted to our hospital " \
+                   "on [DATUM-1] with symptoms of chamomile tea poisoning. His mother " \
+                   "[PATIENT], admitted administrating too much tea. " \
+                   "Patient name: [PATIENT]."
+        values = to_test.strip().split('\t')
+        data = deduce_app.convert_line(values)
+        deidentified = deduce_app.annotate_text(data)
+        assert deidentified["text"] == expected
