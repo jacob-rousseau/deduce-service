@@ -144,8 +144,13 @@ class TestDeduceService:
                   "tea: One table-spoonful to be taken at bedtime"
         values = to_test.strip().split('\t')
         data = deduce_app.convert_line(values)
+        assert data["hash_id"] == "HASH_A"
         assert data["note_id"] == "NOTE_ID_1234"
+        assert data["note_cat"] == "NOTE_CAT_NURSING_NOTITION"
         assert data["patient_first_names"] == "Peter"
+        assert data["patient_initials"] == "P."
         assert data["patient_surname"] == "Rabbit"
+        assert data["patient_surname_capitals"] == "RABBIT,P."
+        assert data["patient_surname_2"] == "Rabbit-Konijn"
         assert data["text"] == "Peter was not very well during the evening. His mother put him to bed, and made " \
                                 "some chamomile tea: One table-spoonful to be taken at bedtime"

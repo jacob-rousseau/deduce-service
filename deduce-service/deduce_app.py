@@ -156,8 +156,12 @@ def convert_line(column_value_list):
 
     data = {
         "text": column_value_list[8],
-        "patient_first_names": column_value_list[3],
+        "patient_surname_2": column_value_list[7],
+        "patient_surname_capitals": column_value_list[6],
         "patient_surname": column_value_list[5],
+        "patient_initials": column_value_list[4],
+        "patient_first_names": column_value_list[3],
+        "note_cat": column_value_list[2],
         "note_id": column_value_list[1],
         "hash_id": column_value_list[0],
         "disabled": [],
