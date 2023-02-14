@@ -1,3 +1,4 @@
+import csv
 import logging
 import multiprocessing
 from typing import Optional
@@ -113,6 +114,55 @@ def format_result(input_data: dict, output_text: Optional[str]) -> dict:
         result["id"] = input_data["id"]
 
     return result
+
+
+def deidentify_tab_delimited_file(path_to_file):
+    """
+    Reads a tab-delimited file with the column format defined below and outputs the deidentified text to standard
+    output.
+    """
+    with open(path_to_file, closefd=True, encoding="UTF-8") as input_file:
+        tsv_reader = csv.reader(input_file, delimiter='\t')
+        line_number = 0
+        for line in tsv_reader:
+            data = convert_line(line)
+            line_number += 1
+            deidentified_text = annotate_text(data)
+            line.append(deidentified_text.get('text'))
+            print("\t".join(line))
+
+    input_file.close()
+
+
+def convert_line(column_value_list):
+    """
+    Converts a tab-delimited line (UTF-8) to JSON-format as defined in the api.model.
+    """
+    # TODO Consider introducing an abstract base class (ABC) or a formal or informal interface
+    # to allow the deduce_app to work with difference data sources. Two implementations are thinkable: the current
+    # web-service REST-interface using flask and a stream from a delimited file. This method should be incorporated
+    # in the interface / ABC. The current version of the method assumes the following columns:
+    # 0) PATIENT_HASH
+    # 1) NOTE_ID
+    # 2) NOTE_CATEGORY
+    # 3) FIRST_NAME
+    # 4) INITIALS
+    # 5) FAMILY_NAME
+    # 6) CAPITAL_NAME
+    # 7) FAMILY_NAME_2
+    # 8) NOTE_TEXT
+    #
+    # A final implementation can include a dict to map the columns in the text-line to the deduce data
+
+    data = {
+        "text": column_value_list[8],
+        "patient_first_names": column_value_list[3],
+        "patient_surname": column_value_list[5],
+        "note_id": column_value_list[1],
+        "hash_id": column_value_list[0],
+        "disabled": [],
+    }
+    return data
 
 
 def annotate_text(data):

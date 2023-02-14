@@ -1,5 +1,6 @@
 import json
 
+import deduce_app
 import examples
 import pytest
 from deduce_app import app
@@ -40,7 +41,7 @@ class TestDeduceService:
 
     def test_deidentify(self, client):
 
-        example_data = examples.load_single_example_text()
+        example_data = examples.example_text
 
         response = client.post(
             "/deidentify",
@@ -106,7 +107,7 @@ class TestDeduceService:
 
     def test_deidentify_bulk(self, client):
 
-        example_data_bulk = examples.load_multiple_example_texts()
+        example_data_bulk = examples.example_texts
 
         response = client.post(
             "/deidentify_bulk",
@@ -121,7 +122,7 @@ class TestDeduceService:
 
     def test_deidentify_bulk_disabled(self, client):
 
-        example_data_bulk = examples.load_multiple_example_texts()
+        example_data_bulk = examples.example_texts
         example_data_bulk["disabled"] = ["names"]
 
         response = client.post(
@@ -135,3 +136,16 @@ class TestDeduceService:
         assert "Jan Jansen" in data["texts"][0]["text"]
         assert "Jong" in data["texts"][1]["text"]
         assert "jong" in data["texts"][1]["text"]
+
+    def test_convert_line(self, client):
+
+        to_test = "HASH_A\tNOTE_ID_1234\tNOTE_CAT_NURSING_NOTITION\tPeter\tP.\tRabbit\tRABBIT,P.\tRabbit-Konijn\t" \
+                  "Peter was not very well during the evening. His mother put him to bed, and made some chamomile " \
+                  "tea: One table-spoonful to be taken at bedtime"
+        values = to_test.strip().split('\t')
+        data = deduce_app.convert_line(values)
+        assert data["note_id"] == "NOTE_ID_1234"
+        assert data["patient_first_names"] == "Peter"
+        assert data["patient_surname"] == "Rabbit"
+        assert data["text"] == "Peter was not very well during the evening. His mother put him to bed, and made " \
+                                "some chamomile tea: One table-spoonful to be taken at bedtime"
