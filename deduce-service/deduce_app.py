@@ -118,12 +118,13 @@ def format_result(input_data: dict, output_text: Optional[str]) -> dict:
 
 def deidentify_tab_delimited_file(path_to_file):
     """
-    Reads a tab-delimited file with the column format defined below and outputs the deidentified text to standard
-    output.
+    Reads a tab-delimited file with the column format defined below in the covert_line method and outputs the
+    deidentified text to standard output.
     """
     with open(path_to_file, closefd=True, encoding="UTF-8") as input_file:
         tsv_reader = csv.reader(input_file, delimiter='\t')
         line_number = 0
+        print("\n")
         for line in tsv_reader:
             data = convert_line(line)
             line_number += 1
