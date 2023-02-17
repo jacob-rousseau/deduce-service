@@ -122,9 +122,9 @@ def deidentify_tab_delimited_file(path_to_file):
     Reads a tab-delimited file with the column format defined below in the covert_line method and outputs the
     deidentified text to standard output.
     """
+    csv.field_size_limit(sys.maxsize)
     with open(path_to_file, closefd=True, encoding="UTF-8") as input_file:
         tsv_reader = csv.reader(input_file, delimiter='\t')
-        tsv_reader.field_size_limit(sys.maxsize)
         line_number = 0
         print("\n")
         for line in tsv_reader:
