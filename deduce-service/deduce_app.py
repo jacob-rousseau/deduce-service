@@ -130,7 +130,7 @@ def deidentify_tab_delimited_file(path_to_file):
         for line in tsv_reader:
             data = convert_line(line)
             line_number += 1
-            deidentified_text = annotate_text(data)
+            deidentified_text = annotate_text(data.get('text'))
             line.append(deidentified_text.get('text'))
             print("\t".join(line))
 
