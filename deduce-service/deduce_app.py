@@ -141,8 +141,7 @@ def deidentify_tab_delimited_file(path_to_file, target_output_stream):
                 print("\t".join(line))
             else:
                 print("\t".join(line), file=target_output_stream)
-
-    input_file.close()
+    # closing file not needed because we use a with open construct.
 
 
 def convert_line(column_value_list):

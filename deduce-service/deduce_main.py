@@ -1,3 +1,5 @@
+import sys
+
 import argparse
 from datetime import datetime as dt
 
@@ -16,7 +18,7 @@ if __name__ == '__main__':
     current_time = dt.now()
     print("Start time: ", current_time)
 
-    deduce_app.deidentify_tab_delimited_file(file.name)
+    deduce_app.deidentify_tab_delimited_file(file.name, sys.stdout)
 
     current_time = dt.now()
     print("End time:   ", current_time)
