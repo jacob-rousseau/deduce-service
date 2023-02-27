@@ -5,6 +5,7 @@ import sys
 from typing import Optional
 
 import deduce
+import numpy
 from deduce.person import Person
 from deduce_model import initialize_deduce
 from examples import example_text, example_texts
@@ -117,12 +118,16 @@ def format_result(input_data: dict, output_text: Optional[str]) -> dict:
     return result
 
 
-def deidentify_tab_delimited_file(path_to_file):
+def deidentify_tab_delimited_file(path_to_file, target_output_stream):
     """
     Reads a tab-delimited file with the column format defined below in the covert_line method and outputs the
-    deidentified text to standard output.
+    deidentified text to the specified standard output.
     """
-    csv.field_size_limit(sys.maxsize)
+    # see https://stackoverflow.com/questions/15063936/csv-error-field-larger-than-field-limit-131072 for the rationale
+    # of the lines below
+    ii32 = numpy.iinfo(numpy.int32)
+    new_limit = numpy.intc(ii32.max) - 1
+    csv.field_size_limit(int (new_limit))
     with open(path_to_file, closefd=True, encoding="UTF-8") as input_file:
         tsv_reader = csv.reader(input_file, delimiter='\t')
         line_number = 0
@@ -130,9 +135,12 @@ def deidentify_tab_delimited_file(path_to_file):
         for line in tsv_reader:
             data = convert_line(line)
             line_number += 1
-            deidentified_text = annotate_text(data.get('text'))
+            deidentified_text = annotate_text(data)
             line.append(deidentified_text.get('text'))
-            print("\t".join(line))
+            if target_output_stream is None:
+                print("\t".join(line))
+            else:
+                print("\t".join(line), file=target_output_stream)
 
     input_file.close()
 
@@ -184,6 +192,8 @@ def annotate_text(data):
         deduce_args["metadata"]["patient"] = Person.from_keywords(
             patient_first_names=data.get("patient_first_names", None),
             patient_surname=data.get("patient_surname", None),
+            patient_initials=data.get("patient_initials", None),
+            patient_given_name=data.get("patient_given_name", None)
         )
 
     if data.get("disabled", None):
