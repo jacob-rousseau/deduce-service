@@ -172,6 +172,18 @@ class TestDeduceService:
         deidentified = deduce_app.annotate_text(data)
         assert deidentified["text"] == expected
 
+    def test_capitalized_surname(self, client):
+        # use a surname present in the lookup-list with surnames in the clinical text while in the surname it's in
+        # lower-case
+        to_test = "123456789ABCDEF\t1234\tBrief\tPietje Firstname2 Firstname3\tI.N.I.T.I.A.L.S.\tHartsuiker\t" \
+                  "FAMILYNAME.I.N.I.T.I.A.L.S.\tPietje\tDe heer HARTSUIKER was admitted to our hospital on " \
+                  "01-06-2022 with appendicitis."
+        expected = "De heer [PATIENT] was admitted to our hospital on [DATUM-1] with appendicitis."
+        values = to_test.strip().split('\t')
+        data = deduce_app.convert_line(values)
+        deidentified = deduce_app.annotate_text(data)
+        assert deidentified["text"] == expected
+
     def test_deidentify_tab_delimited_file(self, client):
         file_name = "./data/input_from_file.tsv"
         output = io.StringIO()
