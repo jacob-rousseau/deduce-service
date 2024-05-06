@@ -13,7 +13,6 @@ from flask import Flask, abort, request
 from flask_restx import Api, Resource, fields
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-deduce_model = initialize_deduce()
 
 
 app = Flask(__name__)
@@ -118,7 +117,7 @@ def format_result(input_data: dict, output_text: Optional[str]) -> dict:
     return result
 
 
-def deidentify_tab_delimited_file(path_to_file, target_output_stream):
+def deidentify_tab_delimited_file(deduce_model, path_to_file, target_output_stream):
     """
     Reads a tab-delimited file with the column format defined below in the covert_line method and outputs the
     deidentified text to the specified standard output.
@@ -135,8 +134,8 @@ def deidentify_tab_delimited_file(path_to_file, target_output_stream):
         for line in tsv_reader:
             data = convert_line(line)
             line_number += 1
-            deidentified_text = annotate_text(data)
-            line.append(deidentified_text.get('text'))
+            deidentified_text = deduce_model.deidentify(data)
+            line.append(deidentified_text)
             if target_output_stream is None:
                 print("\t".join(line))
             else:
