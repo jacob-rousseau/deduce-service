@@ -127,9 +127,9 @@ def annotate_text(data):
 
     if ("patient_first_names" in data) or ("patient_surname" in data):
         deduce_args["metadata"] = dict()
-        deduce_args["metadata"]["patient"] = Person.from_keywords(
-            patient_first_names=data.get("patient_first_names", None),
-            patient_surname=data.get("patient_surname", None),
+        deduce_args["metadata"]["patient"] = Person(
+            first_names_str=data.get("patient_first_names", None),
+            surname_str=data.get("patient_surname", None),
         )
 
     if data.get("disabled", None):
